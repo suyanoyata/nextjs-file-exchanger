@@ -1,17 +1,10 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
 import "./globals.css";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
+import { ThemeProvider } from "@/components/theme-provider";
+import ClientProviders from "@/providers/query-client-provider";
+import { AnalyticsProvider } from "@/providers/posthog-provider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,11 +17,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`overscroll-none antialiased font-sans bg-[#0c0e11] min-w-[320px]`}
       >
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ClientProviders>
+            <AnalyticsProvider>
+              <SidebarProvider defaultOpen={false}>
+                <AppSidebar />
+                <main className="flex-1">{children}</main>
+              </SidebarProvider>
+            </AnalyticsProvider>
+          </ClientProviders>
+        </ThemeProvider>
       </body>
     </html>
   );
