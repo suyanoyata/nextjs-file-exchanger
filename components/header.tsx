@@ -3,6 +3,6 @@
 import { users } from "@/features/users/db/users";
 
 export const Header = async () => {
-  const user = await users.api.getCurrentUser({ userId: 1 });
-  return <header>{user.email}</header>;
+  const user = await users.api.getCurrentUser();
+  return <header>{JSON.stringify(user)}</header>;
 };

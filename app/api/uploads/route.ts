@@ -11,7 +11,13 @@ export async function DELETE() {
 }
 
 export async function GET() {
-  const data = await uploads.api.getUserUploads();
+  const { data, error } = await uploads.api.getUserUploads();
+
+  if (error) {
+    return NextResponse.json({
+      message: error.message,
+    });
+  }
 
   return NextResponse.json({
     data,

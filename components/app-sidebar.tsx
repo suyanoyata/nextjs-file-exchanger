@@ -44,7 +44,7 @@ export const AppSidebar = () => {
   const sidebar = useSidebar();
 
   return (
-    <Sidebar collapsible="icon" className="group/collapsible">
+    <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarGroup className="gap-1.5">
           <UploadAlertDialog />

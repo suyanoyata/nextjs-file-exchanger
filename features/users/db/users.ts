@@ -7,10 +7,12 @@ import { usersTable } from "@/db/schema/users";
 
 import {
   CurrentUserQuery,
+  LoginUserPayload,
   User,
   UserCreatePayload,
 } from "@/features/users/types/users";
 import { supabase } from "@/lib/supabase";
+import { token } from "@/features/users/utils/token";
 
 const createUser = async (payload: UserCreatePayload) => {
   const exists = await db
@@ -36,23 +38,57 @@ const createUser = async (payload: UserCreatePayload) => {
   return db.insert(usersTable).values(payload);
 };
 
+const loginUser = async (payload: LoginUserPayload) => {
+  const user = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.email, payload.email))
+    .limit(1)
+    .execute();
+
+  if (user.length == 0) {
+    return {
+      data: null,
+      error: "User not found",
+    };
+  }
+
+  return {
+    data: user[0],
+    error: null,
+  };
+};
+
 const getUsers = async (): Promise<User[]> => {
   return db.select().from(usersTable).execute();
 };
 
-const getCurrentUser = async (payload: CurrentUserQuery): Promise<User> => {
+const getCurrentUser = async () => {
+  const { data, error } = await token.api.readToken();
+
+  if (error || !data) {
+    return {
+      data: null,
+      error,
+    };
+  }
+
   const result = await db
     .select()
     .from(usersTable)
-    .where(eq(usersTable.id, payload.userId))
+    .where(eq(usersTable.name, data.name))
     .execute();
 
-  return result[0];
+  return {
+    data: result[0],
+    error: null,
+  };
 };
 
 export const users = {
   api: {
     createUser,
+    loginUser,
     getUsers,
     getCurrentUser,
   },

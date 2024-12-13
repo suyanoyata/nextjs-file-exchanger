@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
+
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
+
 import ClientProviders from "@/providers/query-client-provider";
 import { AnalyticsProvider } from "@/providers/posthog-provider";
-import { FileHoverProvider } from "@/providers/file-hover-provider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`overscroll-none antialiased font-sans bg-[#0c0e11] min-w-[320px]`}
+        className={`overscroll-none antialiased font-sans dark:bg-[#0c0e11] min-w-[320px]`}
       >
         <ThemeProvider
           attribute="class"
@@ -30,12 +30,9 @@ export default function RootLayout({
         >
           <AnalyticsProvider>
             <ClientProviders>
-              <FileHoverProvider>
-                <SidebarProvider defaultOpen={false}>
-                  <AppSidebar />
-                  <main className="flex-1">{children}</main>
-                </SidebarProvider>
-              </FileHoverProvider>
+              <SidebarProvider defaultOpen={false}>
+                <main className="flex-1 flex flex-row">{children}</main>
+              </SidebarProvider>
             </ClientProviders>
           </AnalyticsProvider>
         </ThemeProvider>

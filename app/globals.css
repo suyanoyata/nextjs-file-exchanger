@@ -74,6 +74,12 @@
   }
 }
 
+/* *,
+*::before,
+*::after {
+  outline: 1px dotted rgba(0, 255, 0, 0.1);
+} */
+
 @layer base {
   * {
     @apply border-border;

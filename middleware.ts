@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export default function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const existingRoutes = ["/auth", "/uploads", "/api-key"];
+  const existingRoutes = ["/auth", "/uploads", "/api-key", "/"];
 
   if (!existingRoutes.includes(`${pathname}`)) {
     const newUrl = request.nextUrl.clone();

@@ -2,15 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { UploadItem } from "@/features/uploads/types/uploads";
-import axios from "axios";
 import { Download } from "lucide-react";
+import Link from "next/link";
 
 export const DownloadItemButton = ({ upload }: { upload: UploadItem }) => {
   return (
-    <Button
-      onClick={async () => await axios.get(`/api/download/${upload.name}`)}
-    >
-      <Download />
-    </Button>
+    <Link prefetch={false} href={`/${upload.name}?d=1`}>
+      <Button>
+        <Download />
+      </Button>
+    </Link>
   );
 };

@@ -5,7 +5,7 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await users.api.getCurrentUser({ userId: 1 });
+  const user = await users.api.getCurrentUser();
 
   if (user == null) {
     await users.api.createUser({

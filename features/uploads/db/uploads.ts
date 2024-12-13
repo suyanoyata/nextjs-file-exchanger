@@ -14,17 +14,27 @@ import {
   UploadCreatePayload,
   UploadItem,
 } from "@/features/uploads/types/uploads";
+import { token } from "@/features/users/utils/token";
 
 const createUpload = async (
   payload: Omit<UploadCreatePayload, "generatedFileName">,
   file: File
 ) => {
+  const tokenPayload = await token.api.readToken();
+
+  if (tokenPayload.error || !tokenPayload.data) {
+    return {
+      data: null,
+      error: tokenPayload.error,
+    };
+  }
+
   const generatedFileName = `${
     Math.random().toString(18).substring(-2).split(".")[1]
   }.${file.name.split(".").pop()}`;
 
   const upload = await supabase()
-    .storage.from("Alice")
+    .storage.from(tokenPayload.data.name)
     .upload(generatedFileName, file);
 
   if (upload.error) {
@@ -43,36 +53,60 @@ const createUpload = async (
   };
 };
 
-const getUserUploads = async (): Promise<UploadItem[]> => {
-  // TODO: get user id or name from cookie, user it for bucket name then
+type UserUploadsResponse =
+  | {
+      data: UploadItem[];
+      error: null;
+    }
+  | { data: null; error: any };
+
+const getUserUploads = async (): Promise<UserUploadsResponse> => {
+  const { data, error } = await token.api.readToken();
+
+  if (error || !data) {
+    return {
+      data: null,
+      error,
+    };
+  }
+
+  const userId = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.name, data.name));
+
   const list = await db
     .select()
     .from(uploadTable)
-    .where(eq(uploadTable.userId, 1))
+    .where(eq(uploadTable.userId, userId[0].id))
     .orderBy(desc(uploadTable.id))
     .execute();
 
   if (list.length == 0) {
-    return [];
+    return {
+      data: [],
+      error: null,
+    };
   }
 
   const result = await Promise.all(
     list.map(async (item) => {
       const fileData = await storage.api.getStorageItemByFileName(
-        "Alice",
+        data.name,
         item.generatedFileName
       );
-      const url = storage.api.getFilePublicUrl("Alice", item.generatedFileName);
 
       return {
         ...fileData.data?.[0],
         ...item,
-        url,
       };
     })
   );
 
-  return result;
+  return {
+    data: result,
+    error: null,
+  };
 };
 
 const getUploadByName = async (name: string) => {
@@ -96,7 +130,15 @@ const getUploadByName = async (name: string) => {
 };
 
 const clearUserUploads = async () => {
-  await storage.api.clearBucket("Alice");
+  const { data, error } = await token.api.readToken();
+
+  if (error || !data) {
+    return {
+      error,
+    };
+  }
+
+  await storage.api.clearBucket(data.name);
   await db.delete(uploadTable).where(eq(uploadTable.userId, 1));
 
   return {
@@ -118,8 +160,6 @@ const deleteUserUpload = async (bucketName: string, fileName: string) => {
     };
   }
 
-  console.log(`deleting: ${fileName}`);
-
   await db
     .delete(uploadTable)
     .where(eq(uploadTable.generatedFileName, fileName));
@@ -129,17 +169,43 @@ const deleteUserUpload = async (bucketName: string, fileName: string) => {
     fileName
   );
 
-  console.log(error);
-
   if (error) {
     return {
-      message: error.message,
+      error: {
+        message: error.message,
+      },
     };
   }
 
   return {
     message: "Upload has been deleted",
     error: null,
+  };
+};
+
+const getUploadBucketName = async (fileName: string) => {
+  console.log("getUploadBucketName start");
+  const exists = await db
+    .select()
+    .from(uploadTable)
+    .where(eq(uploadTable.generatedFileName, fileName));
+
+  if (exists.length == 0) {
+    return {
+      error: {
+        message: "This upload does not exist",
+      },
+    };
+  }
+
+  const uploadCreator = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.id, exists[0].userId));
+
+  console.log("getUploadBucketName end");
+  return {
+    data: uploadCreator[0].name,
   };
 };
 
@@ -150,5 +216,6 @@ export const uploads = {
     getUploadByName,
     getUserUploads,
     deleteUserUpload,
+    getUploadBucketName,
   },
 };

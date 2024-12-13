@@ -13,12 +13,9 @@ export async function POST(req: Request) {
   );
 
   if (newFile.error) {
-    return NextResponse.json(
-      { message: newFile.error.message },
-      {
-        status: 500,
-      }
-    );
+    return NextResponse.json(newFile.error, {
+      status: 500,
+    });
   }
 
   return NextResponse.json({ data: newFile.data });
