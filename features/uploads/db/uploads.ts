@@ -104,11 +104,51 @@ const clearUserUploads = async () => {
   };
 };
 
+const deleteUserUpload = async (bucketName: string, fileName: string) => {
+  const exists = await db
+    .select()
+    .from(uploadTable)
+    .where(eq(uploadTable.generatedFileName, fileName));
+
+  if (exists.length == 0) {
+    return {
+      error: {
+        message: "This upload does not exist",
+      },
+    };
+  }
+
+  console.log(`deleting: ${fileName}`);
+
+  await db
+    .delete(uploadTable)
+    .where(eq(uploadTable.generatedFileName, fileName));
+
+  const { error } = await storage.api.deleteFileFromBucket(
+    bucketName,
+    fileName
+  );
+
+  console.log(error);
+
+  if (error) {
+    return {
+      message: error.message,
+    };
+  }
+
+  return {
+    message: "Upload has been deleted",
+    error: null,
+  };
+};
+
 export const uploads = {
   api: {
     createUpload,
     clearUserUploads,
     getUploadByName,
     getUserUploads,
+    deleteUserUpload,
   },
 };

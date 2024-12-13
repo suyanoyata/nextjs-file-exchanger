@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 import ClientProviders from "@/providers/query-client-provider";
 import { AnalyticsProvider } from "@/providers/posthog-provider";
+import { FileHoverProvider } from "@/providers/file-hover-provider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -27,14 +28,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ClientProviders>
-            <AnalyticsProvider>
-              <SidebarProvider defaultOpen={false}>
-                <AppSidebar />
-                <main className="flex-1">{children}</main>
-              </SidebarProvider>
-            </AnalyticsProvider>
-          </ClientProviders>
+          <AnalyticsProvider>
+            <ClientProviders>
+              <FileHoverProvider>
+                <SidebarProvider defaultOpen={false}>
+                  <AppSidebar />
+                  <main className="flex-1">{children}</main>
+                </SidebarProvider>
+              </FileHoverProvider>
+            </ClientProviders>
+          </AnalyticsProvider>
         </ThemeProvider>
       </body>
     </html>

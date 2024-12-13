@@ -44,11 +44,9 @@ export const DeleteUploadsDialog = () => {
         </AlertDialogDescription>
         <div className="flex-row flex justify-end gap-2">
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-            <Button variant="destructive" onClick={() => deleteUploads()}>
-              Delete
-            </Button>
-          </AlertDialogAction>
+          <Button variant="destructive" onClick={() => deleteUploads()}>
+            Delete
+          </Button>
         </div>
       </AlertDialogContent>
     </AlertDialog>

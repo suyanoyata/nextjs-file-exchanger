@@ -1,7 +1,7 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 import {
@@ -16,6 +16,8 @@ import { SidebarMenuButton, useSidebar } from "@/components/ui/sidebar";
 import { FileUploader } from "@/features/uploads/components/file-uploader";
 
 import { handleUpload } from "@/features/uploads/lib/handle-upload";
+import { useQueryClient } from "@tanstack/react-query";
+import { useGlobalDragHook } from "@/hooks/use-global-drag-hook";
 
 type UploadDialogProps = {
   withTooltip?: boolean;
@@ -26,6 +28,16 @@ export const UploadAlertDialog = ({
 }: UploadDialogProps) => {
   const [open, setOpen] = useState(false);
   const sidebar = useSidebar();
+
+  const { isDragging } = useGlobalDragHook();
+
+  useEffect(() => {
+    if (isDragging) {
+      setOpen(true);
+    }
+  }, [isDragging]);
+
+  const queryClient = useQueryClient();
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
@@ -46,11 +58,13 @@ export const UploadAlertDialog = ({
           // @ts-ignore
           accept={["*"]}
           maxSize={1024 * 1024 * 50}
-          onValueChange={(files) => {
-            handleUpload(files).then(() => {
-              sidebar.setOpenMobile(false);
-              setOpen(false);
+          onValueChange={async (files) => {
+            await handleUpload(files);
+            await queryClient.invalidateQueries({
+              queryKey: ["uploads"],
             });
+            sidebar.setOpenMobile(false);
+            setOpen(false);
           }}
         />
         <div className="flex-row flex justify-end gap-2">

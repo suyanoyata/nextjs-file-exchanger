@@ -30,11 +30,16 @@ const downloadFile = async (bucketName: string, fileName: string) => {
   return await supabase().storage.from(bucketName).download(fileName);
 };
 
+const deleteFileFromBucket = async (bucketName: string, fileName: string) => {
+  return await supabase().storage.from(bucketName).remove([fileName]);
+};
+
 export const storage = {
   api: {
     getStorageItemByFileName,
     getFilePublicUrl,
     clearBucket,
     downloadFile,
+    deleteFileFromBucket,
   },
 };

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { FileText, Upload, X } from "lucide-react";
+import { FileText, Loader, Upload, X } from "lucide-react";
 import Dropzone, {
   type DropzoneProps,
   type FileRejection,
@@ -210,7 +210,7 @@ export function FileUploader(props: FileUploaderProps) {
             {...dropzoneProps}
           >
             <input {...getInputProps()} />
-            {isDragActive ? (
+            {isDragActive && (
               <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
                 <div className="rounded-full border border-dashed p-3">
                   <Upload
@@ -222,7 +222,21 @@ export function FileUploader(props: FileUploaderProps) {
                   Drop the files here
                 </p>
               </div>
-            ) : (
+            )}
+            {!isDragActive && isDisabled && (
+              <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
+                <div className="rounded-full border border-dashed p-3">
+                  <Upload
+                    className="size-7 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="flex flex-col gap-px">
+                  <Loader className="animate-spin" />
+                </div>
+              </div>
+            )}
+            {!isDragActive && !isDisabled && (
               <div className="flex flex-col items-center justify-center gap-4 sm:px-5">
                 <div className="rounded-full border border-dashed p-3">
                   <Upload
@@ -240,7 +254,7 @@ export function FileUploader(props: FileUploaderProps) {
                       ? ` ${
                           maxFileCount === Infinity ? "multiple" : maxFileCount
                         }
-                      files (up to ${formatBytes(maxSize)} each)`
+                    files (up to ${formatBytes(maxSize)} each)`
                       : ` a file up to ${formatBytes(maxSize)}`}
                   </p>
                 </div>

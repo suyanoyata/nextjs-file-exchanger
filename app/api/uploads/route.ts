@@ -9,3 +9,11 @@ export async function DELETE() {
     data,
   });
 }
+
+export async function GET() {
+  const data = await uploads.api.getUserUploads();
+
+  return NextResponse.json({
+    data,
+  });
+}
