@@ -9,7 +9,7 @@ import { useState } from "react";
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
 
-  const { mutate, isPending, isSuccess } = auth.api.login({
+  const { mutate, isPending } = auth.api.login({
     email,
   });
 
@@ -23,7 +23,7 @@ export const LoginForm = () => {
       <Button onClick={() => mutate()} disabled={isPending}>
         Login
       </Button>
-      {JSON.stringify({ isPending, isSuccess })}
+      {/* {JSON.stringify({ isPending, isSuccess })} */}
     </div>
   );
 };

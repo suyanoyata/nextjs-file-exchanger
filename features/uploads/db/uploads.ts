@@ -23,10 +23,7 @@ const createUpload = async (
   const tokenPayload = await token.api.readToken();
 
   if (tokenPayload.error || !tokenPayload.data) {
-    return {
-      data: null,
-      error: tokenPayload.error,
-    };
+    return tokenPayload;
   }
 
   const generatedFileName = `${
