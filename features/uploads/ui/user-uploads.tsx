@@ -10,6 +10,7 @@ import { FilesListView } from "@/features/uploads/components/files-list-view";
 import { Button } from "@/components/ui/button";
 import { LogIn } from "lucide-react";
 import Link from "next/link";
+import { FilesGridView } from "@/features/uploads/components/files-grid-view";
 
 export const UserUploads = async () => {
   const userUploads = await uploads.api.getUserUploads();
@@ -44,7 +45,9 @@ export const UserUploads = async () => {
     return (
       <div className="p-2 flex flex-row justify-between flex-1">
         <FilesViewSwitcher>
-          <TabsContent value="grid">Grid View</TabsContent>
+          <TabsContent value="grid">
+            <FilesGridView uploads={userUploads.data} />
+          </TabsContent>
           <TabsContent value="list">
             <FilesListView uploads={userUploads.data} />
           </TabsContent>

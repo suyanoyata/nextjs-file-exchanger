@@ -1,5 +1,8 @@
 "use client";
 
+import { KeyRoundIcon, Settings, UploadIcon } from "lucide-react";
+import Link from "next/link";
+
 import {
   Sidebar,
   SidebarContent,
@@ -9,12 +12,10 @@ import {
   SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
+
 import { UploadAlertDialog } from "@/features/uploads/components/upload-alert-dialog";
 
-import { KeyRoundIcon, Settings, UploadIcon } from "lucide-react";
-import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
 
 type SidebarItemType = {
   title: string;

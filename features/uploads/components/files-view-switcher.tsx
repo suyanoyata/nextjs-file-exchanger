@@ -1,14 +1,30 @@
+"use client";
+
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DeleteUploadsDialog } from "@/features/uploads/components/delete-uploads-dialog";
 import { Grid2X2, List } from "lucide-react";
+import { useEffect } from "react";
 
 export const FilesViewSwitcher = ({
   children,
 }: {
   children: React.ReactNode;
 }) => {
+  useEffect(() => {
+    if (localStorage.getItem("lastSelectedView") == null) {
+      localStorage.setItem("lastSelectedView", "list");
+    }
+  }, []);
   return (
-    <Tabs defaultValue="list" className="w-full">
+    <Tabs
+      onValueChange={(value) => {
+        localStorage.setItem("lastSelectedView", value);
+      }}
+      defaultValue={
+        (localStorage.getItem("lastSelectedView") as string) ?? "list"
+      }
+      className="w-full"
+    >
       <div className="flex flex-row justify-between items-center">
         <TabsList>
           <TabsTrigger value="grid">

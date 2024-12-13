@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 import ClientProviders from "@/providers/query-client-provider";
 import { AnalyticsProvider } from "@/providers/posthog-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -35,6 +36,7 @@ export default function RootLayout({
               </SidebarProvider>
             </ClientProviders>
           </AnalyticsProvider>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

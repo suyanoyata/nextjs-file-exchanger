@@ -30,7 +30,7 @@ export const DeleteUploadsDialog = () => {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive">
+        <Button variant="destructive" size="sm">
           <Trash2 />
           Delete everything
         </Button>

@@ -1,16 +1,17 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
-import axios from "axios";
 
-import { Download, File, Trash2 } from "lucide-react";
+import { File, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { DownloadItemButton } from "@/features/uploads/components/download-item-button";
+
+import { clientUploads } from "@/features/uploads/api/uploads";
 
 import { UploadItem } from "@/features/uploads/types/uploads";
-import { DownloadItemButton } from "@/features/uploads/components/download-item-button";
 
 const Icon = ({ upload }: { upload: UploadItem }) => {
   if (upload.metadata?.mimetype.startsWith("image/")) {
@@ -30,25 +31,9 @@ const Icon = ({ upload }: { upload: UploadItem }) => {
 
 export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
   const queryClient = useQueryClient();
-  const { data } = useQuery<UploadItem[]>({
-    queryKey: ["uploads"],
-    queryFn: async () => axios.get("/api/uploads").then((res) => res.data.data),
-    initialData: uploads,
-  });
+  const { data } = clientUploads.api.getUploads(uploads);
 
-  const { mutate: deleteUpload } = useMutation({
-    mutationKey: ["deleteUpload"],
-    mutationFn: async (name: string) => axios.delete(`/api/uploads/${name}`),
-    onMutate: (name: string) => {
-      queryClient.setQueryData(["uploads"], (prev: UploadItem[]) => {
-        return prev.filter((upload) => upload.name !== name);
-      });
-    },
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: ["uploads"],
-      }),
-  });
+  const { mutate: deleteUpload } = clientUploads.api.deleteUpload(queryClient);
 
   return (
     <div className="space-y-2 w-full">
