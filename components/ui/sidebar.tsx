@@ -505,8 +505,10 @@ const sidebarMenuButtonVariants = cva(
       variant: {
         default:
           "bg-[#87a9ff] text-black shadow hover:bg-[#99b6ff] active:bg-[#99b6ff]",
-        "sidebar-focus": "justify-start text-zinc-300 bg-zinc-800/60",
-        sidebar: "justify-start text-zinc-300 hover:bg-zinc-800/40",
+        "sidebar-focus":
+          "justify-start hover:bg-zinc-400/40 dark:hover:bg-sidebar-accent text-zinc-600 dark:text-zinc-300 bg-zinc-400/20 dark:bg-zinc-800/60",
+        sidebar:
+          "justify-start text-zinc-600 dark:text-zinc-300 hover:bg-zinc-400/20 dark:hover:bg-zinc-800/40",
       },
       size: {
         default: "h-9 py-2 px-4",

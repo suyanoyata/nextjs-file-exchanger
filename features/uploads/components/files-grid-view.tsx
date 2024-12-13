@@ -40,7 +40,7 @@ export const FilesGridView = ({ uploads }: { uploads: UploadItem[] }) => {
       {data.map((upload) => (
         <Card
           key={upload.id}
-          className="hover:bg-zinc-800/20 rounded-lg duration-200 relative flex-1 min-w-64 flex flex-col"
+          className="hover:bg-zinc-300/20 dark:hover:bg-zinc-800/20 rounded-lg duration-200 relative flex-1 min-w-64 flex flex-col"
         >
           <CardContent className="p-4 flex-1">
             <Link

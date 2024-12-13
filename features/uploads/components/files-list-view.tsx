@@ -40,7 +40,7 @@ export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
       {data.map((upload) => (
         <div
           key={upload.id}
-          className="flex flex-row items-center hover:bg-zinc-800/20 rounded-lg duration-200 relative"
+          className="flex flex-row items-center hover:bg-zinc-400/10 dark:hover:bg-zinc-800/20 rounded-lg duration-200 relative"
         >
           <Link
             prefetch={false}
