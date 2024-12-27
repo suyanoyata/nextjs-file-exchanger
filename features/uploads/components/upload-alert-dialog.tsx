@@ -89,6 +89,11 @@ export const UploadAlertDialog = ({
     }
   }, [open]);
 
+  const formattedTime =
+    data && data?.expirationMinutes >= 60
+      ? `approximately in ${Math.round(data?.expirationMinutes / 60)} hours`
+      : `in ${data?.expirationMinutes} minutes`;
+
   const queryClient = useQueryClient();
 
   return (
@@ -129,8 +134,7 @@ export const UploadAlertDialog = ({
               isPermanent && "text-red-500"
             )}
           >
-            {!isPermanent &&
-              `This upload will be deleted in ${data?.expirationMinutes} minutes`}
+            {!isPermanent && `This upload will be deleted ${formattedTime}`}
             {isPermanent && "This upload will not be deleted"}
           </p>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
