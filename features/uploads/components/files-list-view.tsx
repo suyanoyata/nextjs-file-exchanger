@@ -33,7 +33,8 @@ export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
   const queryClient = useQueryClient();
   const { data } = clientUploads.api.getUploads(uploads);
 
-  const { mutate: deleteUpload } = clientUploads.api.deleteUpload(queryClient);
+  const { mutate: deleteUpload, isPending } =
+    clientUploads.api.deleteUpload(queryClient);
 
   return (
     <div className="space-y-2 w-full">
@@ -55,8 +56,9 @@ export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
             </div>
           </Link>
           <div className="flex flex-row items-center gap-1.5">
-            <DownloadItemButton upload={upload} />
+            <DownloadItemButton disabled={isPending} upload={upload} />
             <Button
+              disabled={isPending}
               onClick={() =>
                 deleteUpload(upload.name ?? upload.generatedFileName)
               }

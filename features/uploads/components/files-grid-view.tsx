@@ -33,10 +33,11 @@ export const FilesGridView = ({ uploads }: { uploads: UploadItem[] }) => {
   const queryClient = useQueryClient();
 
   const { data } = clientUploads.api.getUploads(uploads);
-  const { mutate: deleteUpload } = clientUploads.api.deleteUpload(queryClient);
+  const { mutate: deleteUpload, isPending } =
+    clientUploads.api.deleteUpload(queryClient);
 
   return (
-    <div className="w-full flex gap-2 flex-wrap">
+    <div className="w-full grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
       {data.map((upload) => (
         <Card
           key={upload.id}
@@ -60,8 +61,13 @@ export const FilesGridView = ({ uploads }: { uploads: UploadItem[] }) => {
           </CardContent>
           <CardFooter>
             <div className="flex flex-row items-center gap-1.5">
-              <DownloadItemButton withText upload={upload} />
+              <DownloadItemButton
+                disabled={isPending}
+                withText
+                upload={upload}
+              />
               <Button
+                disabled={isPending}
                 onClick={() =>
                   deleteUpload(upload.name ?? upload.generatedFileName)
                 }

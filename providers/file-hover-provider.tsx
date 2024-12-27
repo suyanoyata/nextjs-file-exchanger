@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
+import { UploadAlertDialog } from "@/features/uploads/components/upload-alert-dialog";
+
 import { useGlobalDragHook } from "@/hooks/use-global-drag-hook";
 
 export const FileHoverProvider = ({
@@ -8,13 +10,25 @@ export const FileHoverProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const { setIsDragging } = useGlobalDragHook();
+  const { setIsDragging, setShiftDown } = useGlobalDragHook();
   useEffect(() => {
     window.addEventListener("dragenter", () => {
       setIsDragging(true);
     });
     window.addEventListener("dragleave", () => {
       setIsDragging(false);
+    });
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Shift") {
+        setShiftDown(true);
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (e.key === "Shift") {
+        setShiftDown(false);
+      }
     });
 
     return () => {
@@ -26,5 +40,10 @@ export const FileHoverProvider = ({
       });
     };
   }, []);
-  return <>{children}</>;
+  return (
+    <>
+      <UploadAlertDialog withTrigger={false} withTooltip={false} />
+      {children}
+    </>
+  );
 };

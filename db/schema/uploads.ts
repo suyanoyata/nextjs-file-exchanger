@@ -13,4 +13,5 @@ export const uploadTable = pgTable("uploads", {
   uploadedAt: timestamp()
     .notNull()
     .default(sql`now()`),
+  expiresAt: timestamp(),
 });

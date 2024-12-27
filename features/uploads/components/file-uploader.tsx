@@ -244,7 +244,7 @@ export function FileUploader(props: FileUploaderProps) {
                     aria-hidden="true"
                   />
                 </div>
-                <div className="flex flex-col gap-px">
+                <div className="flex flex-col gap-px select-none">
                   <p className="font-medium text-muted-foreground">
                     Drag file here, or click to select
                   </p>

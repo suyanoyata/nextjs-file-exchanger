@@ -6,7 +6,7 @@ import { db } from "@/db";
 import { usersTable } from "@/db/schema/users";
 
 import {
-  CurrentUserQuery,
+  DbUserCreate,
   LoginUserPayload,
   User,
   UserCreatePayload,
@@ -14,7 +14,10 @@ import {
 import { supabase } from "@/lib/supabase";
 import { token } from "@/features/users/utils/token";
 
+import bcrypt from "bcrypt";
+
 const createUser = async (payload: UserCreatePayload) => {
+  // #region check if user exists
   const exists = await db
     .select()
     .from(usersTable)
@@ -23,19 +26,59 @@ const createUser = async (payload: UserCreatePayload) => {
     );
 
   if (exists.length != 0) {
-    throw new Error("User already exists");
+    return {
+      data: null,
+      error: "User already exists",
+    };
   }
+  // #endregion
 
+  // #region create a storage bucket
   const bucket = await supabase().storage.createBucket(payload.name, {
     public: true,
     fileSizeLimit: 50 * 1000 * 1000,
   });
 
-  if (bucket.error) {
-    throw new Error("Failed to create a storage bucket, try again later");
+  if (bucket.error && bucket.error.message != "The resource already exists") {
+    return {
+      data: null,
+      error: "Failed to create a storage bucket, try again later",
+    };
   }
+  // #endregion
 
-  return db.insert(usersTable).values(payload);
+  const dbUser: DbUserCreate = {
+    ...payload,
+    createdAt: new Date(),
+    apiKey: "",
+    password: await bcrypt.hash(payload.password, 10),
+  };
+
+  await db.insert(usersTable).values({
+    ...dbUser,
+  });
+
+  // #region assign upload api key
+  const newUser = await db
+    .select()
+    .from(usersTable)
+    .where(or(eq(usersTable.name, payload.name)));
+
+  const apiKey = await token.api.signToken(newUser[0]);
+
+  await db
+    .update(usersTable)
+    .set({ apiKey })
+    .where(eq(usersTable.name, newUser[0].name));
+  // #endregion
+
+  return {
+    data: {
+      ...newUser[0],
+      apiKey,
+    },
+    error: null,
+  };
 };
 
 const loginUser = async (payload: LoginUserPayload) => {
@@ -53,6 +96,18 @@ const loginUser = async (payload: LoginUserPayload) => {
     };
   }
 
+  if (!(await bcrypt.compare(payload.password, user[0].password))) {
+    return {
+      data: null,
+      error: [
+        {
+          where: "password",
+          message: "Password is incorrect",
+        },
+      ],
+    };
+  }
+
   return {
     data: user[0],
     error: null,
@@ -61,6 +116,16 @@ const loginUser = async (payload: LoginUserPayload) => {
 
 const getUsers = async (): Promise<User[]> => {
   return db.select().from(usersTable).execute();
+};
+
+const getUserById = async (userId: number): Promise<User> => {
+  return (
+    await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.id, userId))
+      .execute()
+  )[0];
 };
 
 const getCurrentUser = async () => {
@@ -87,6 +152,7 @@ const getCurrentUser = async () => {
 
 export const users = {
   api: {
+    getUserById,
     createUser,
     loginUser,
     getUsers,

@@ -15,6 +15,9 @@ export const FilesViewSwitcher = ({
       localStorage.setItem("lastSelectedView", "list");
     }
   }, []);
+
+  if (typeof window === "undefined") return;
+
   return (
     <Tabs
       onValueChange={(value) => {

@@ -5,7 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { ThemeProvider } from "@/components/theme-provider";
 
 import ClientProviders from "@/providers/query-client-provider";
-import { AnalyticsProvider } from "@/providers/posthog-provider";
+// import { AnalyticsProvider } from "@/providers/posthog-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
@@ -25,17 +25,17 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="dark"
+          // defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          <AnalyticsProvider>
-            <ClientProviders>
-              <SidebarProvider defaultOpen={false}>
-                <main className="flex-1 flex flex-row">{children}</main>
-              </SidebarProvider>
-            </ClientProviders>
-          </AnalyticsProvider>
+          {/* <AnalyticsProvider> */}
+          <ClientProviders>
+            <SidebarProvider defaultOpen={false}>
+              <main className="flex-1 flex flex-row">{children}</main>
+            </SidebarProvider>
+          </ClientProviders>
+          {/* </AnalyticsProvider> */}
           <Toaster />
         </ThemeProvider>
       </body>

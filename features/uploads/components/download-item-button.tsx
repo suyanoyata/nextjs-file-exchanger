@@ -6,15 +6,17 @@ import { Download } from "lucide-react";
 import Link from "next/link";
 
 export const DownloadItemButton = ({
+  disabled,
   upload,
   withText = false,
 }: {
+  disabled?: boolean;
   upload: UploadItem;
   withText?: boolean;
 }) => {
   return (
     <Link prefetch={false} href={`/${upload.name}?d=1`}>
-      <Button>
+      <Button disabled={disabled}>
         <Download />
         {withText && "Download"}
       </Button>

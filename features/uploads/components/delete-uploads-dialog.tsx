@@ -2,13 +2,12 @@
 
 import axios from "axios";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { Trash2 } from "lucide-react";
 
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -21,10 +20,15 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export const DeleteUploadsDialog = () => {
   const [open, setOpen] = useState(false);
+  const client = useQueryClient();
 
   const { mutate: deleteUploads } = useMutation({
     mutationKey: ["delete-uploads"],
     mutationFn: async () => await axios.delete("/api/uploads"),
+    onSuccess: () => {
+      setOpen(false);
+      client.setQueryData(["uploads"], []);
+    },
   });
 
   return (

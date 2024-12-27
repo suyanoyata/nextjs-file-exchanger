@@ -1,6 +1,6 @@
 "server-only";
 
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, lt } from "drizzle-orm";
 
 import { supabase } from "@/lib/supabase";
 
@@ -15,23 +15,20 @@ import {
   UploadItem,
 } from "@/features/uploads/types/uploads";
 import { token } from "@/features/users/utils/token";
+import { users } from "@/features/users/db/users";
 
 const createUpload = async (
   payload: Omit<UploadCreatePayload, "generatedFileName">,
-  file: File
+  file: File,
+  expirationTime: number = -1
 ) => {
-  const tokenPayload = await token.api.readToken();
-
-  if (tokenPayload.error || !tokenPayload.data) {
-    return tokenPayload;
-  }
-
+  const user = await users.api.getUserById(payload.userId);
   const generatedFileName = `${
     Math.random().toString(18).substring(-2).split(".")[1]
   }.${file.name.split(".").pop()}`;
 
   const upload = await supabase()
-    .storage.from(tokenPayload.data.name)
+    .storage.from(user.name)
     .upload(generatedFileName, file);
 
   if (upload.error) {
@@ -41,11 +38,19 @@ const createUpload = async (
     };
   }
 
+  await db.insert(uploadTable).values({
+    ...payload,
+    generatedFileName,
+    expiresAt:
+      expirationTime <= -1
+        ? null
+        : new Date(Date.now() + expirationTime * 60000),
+  });
+
   return {
-    data: await db.insert(uploadTable).values({
-      ...payload,
-      generatedFileName,
-    }),
+    data: {
+      name: `${process.env.NEXT_PUBLIC_SERVER_URL}/${generatedFileName}`,
+    },
     error: null,
   };
 };
@@ -181,7 +186,6 @@ const deleteUserUpload = async (bucketName: string, fileName: string) => {
 };
 
 const getUploadBucketName = async (fileName: string) => {
-  console.log("getUploadBucketName start");
   const exists = await db
     .select()
     .from(uploadTable)
@@ -200,9 +204,34 @@ const getUploadBucketName = async (fileName: string) => {
     .from(usersTable)
     .where(eq(usersTable.id, exists[0].userId));
 
-  console.log("getUploadBucketName end");
   return {
     data: uploadCreator[0].name,
+  };
+};
+
+const getExpiredUploads = () => {
+  return db
+    .select()
+    .from(uploadTable)
+    .where(lt(uploadTable.expiresAt, new Date()));
+};
+
+const removeExpiredUploads = async () => {
+  const uploads = await getExpiredUploads();
+
+  console.log(`removeExpiredUploads: ${uploads.length} to delete.`);
+
+  uploads.forEach(async (upload) => {
+    const bucketName = await getUploadBucketName(upload.generatedFileName);
+
+    if (bucketName.data) {
+      await deleteUserUpload(bucketName.data, upload.generatedFileName);
+    }
+  });
+
+  return {
+    data: "Expired uploads have been deleted",
+    error: null,
   };
 };
 
@@ -214,5 +243,7 @@ export const uploads = {
     getUserUploads,
     deleteUserUpload,
     getUploadBucketName,
+    getExpiredUploads,
+    removeExpiredUploads,
   },
 };

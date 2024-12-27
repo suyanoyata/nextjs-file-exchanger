@@ -27,9 +27,7 @@ const clearBucket = async (bucketName: string) => {
 };
 
 const downloadFile = async (bucketName: string, fileName: string) => {
-  console.log("downloadFile start");
   const file = await supabase().storage.from(bucketName).download(fileName);
-  console.log("downloadFile end");
   return file;
 };
 

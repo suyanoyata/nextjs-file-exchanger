@@ -1,12 +1,28 @@
-import { token } from "@/features/users/utils/token";
 import { NextRequest, NextResponse } from "next/server";
+
+import { token } from "@/features/users/utils/token";
+import { api } from "@/lib/api";
+
+let timestamp = Date.now();
 
 export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const existingRoutes = ["/auth", "/uploads", "/api-key", "/"];
+  const existingRoutes = [
+    "/auth",
+    "/uploads",
+    "/api-key",
+    "/",
+    "/settings",
+    "/create-account",
+  ];
   const protectedRoutes = ["/uploads", "/api-key"];
   const newUrl = request.nextUrl.clone();
+
+  if (Date.now() - timestamp > 0.1 * 60 * 1000) {
+    timestamp = Date.now();
+    api.patch("/api/ex");
+  }
 
   if (protectedRoutes.includes(`${pathname}`)) {
     const payload = await token.api.readToken();
