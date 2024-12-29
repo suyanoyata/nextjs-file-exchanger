@@ -1,14 +1,10 @@
 import { uploadTable } from "@/db/schema/uploads";
 
 export type UploadCreatePayload = typeof uploadTable.$inferInsert;
+export type SelectUploadItem = typeof uploadTable.$inferSelect;
 
 // generatedFileName and name are same
-export type UploadItem = {
-  id: number;
-  // url: string;
+export type UploadItem = SelectUploadItem & {
   name?: string;
-  generatedFileName: string;
-  originalFileName: string;
-  uploadedAt: Date;
   metadata?: Record<string, any>;
 };

@@ -219,7 +219,9 @@ const getExpiredUploads = () => {
 const removeExpiredUploads = async () => {
   const uploads = await getExpiredUploads();
 
-  console.log(`removeExpiredUploads: ${uploads.length} to delete.`);
+  if (uploads.length != 0) {
+    console.log(`removeExpiredUploads: ${uploads.length} to delete.`);
+  }
 
   uploads.forEach(async (upload) => {
     const bucketName = await getUploadBucketName(upload.generatedFileName);

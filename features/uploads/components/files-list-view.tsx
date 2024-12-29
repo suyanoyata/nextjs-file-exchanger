@@ -4,10 +4,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 
-import { File, Trash2 } from "lucide-react";
+import { Clock, File, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DownloadItemButton } from "@/features/uploads/components/download-item-button";
+import { ExpirableItem } from "@/features/uploads/components/expirable-item";
 
 import { clientUploads } from "@/features/uploads/api/uploads";
 
@@ -51,11 +52,14 @@ export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
           >
             <Icon upload={upload} />
             <div>
-              <p className="text-sm font-medium">{upload.originalFileName}</p>
+              <div className="inline-flex gap-1.5 items-center">
+                <p className="text-sm font-medium">{upload.originalFileName}</p>
+                <ExpirableItem date={upload.expiresAt} />
+              </div>
               <p className="text-xs text-zinc-500 font-medium">{upload.name}</p>
             </div>
           </Link>
-          <div className="flex flex-row items-center gap-1.5">
+          <div className="flex flex-row items-center gap-1.5 mr-2">
             <DownloadItemButton disabled={isPending} upload={upload} />
             <Button
               disabled={isPending}

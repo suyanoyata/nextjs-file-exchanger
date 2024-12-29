@@ -16,7 +16,6 @@ import {
 import { supabase } from "@/lib/supabase";
 
 import { token } from "@/features/users/utils/token";
-import { z } from "zod";
 
 const createUser = async (payload: UserCreatePayload) => {
   // #region check if user exists
