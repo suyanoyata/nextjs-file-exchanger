@@ -1,18 +1,20 @@
 "use client";
 
+import Link from "next/link";
+
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { auth } from "@/features/users/api/auth";
 import { FormField } from "@/features/users/components/form-field";
+
+import { auth } from "@/features/users/api/auth";
+
 import {
-  LoginUserPayload,
   UserCreatePayload,
   UserCreatePayloadSchema,
 } from "@/features/users/types/users";
+
 import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 
 export const RegisterForm = () => {
@@ -68,14 +70,27 @@ export const RegisterForm = () => {
         label="Username"
       />
       <FormField
+        type="password"
         fieldName="password"
         register={register}
         errors={errors}
         label="Password"
       />
+      <FormField
+        type="password"
+        fieldName="confirmPassword"
+        register={register}
+        errors={errors}
+        label="Confirm Password"
+      />
       <Button type="submit" disabled={isPending}>
-        Login
+        Register
       </Button>
+      {errors.root && (
+        <p className="text-red-400 text-xs font-medium">
+          {errors.root.message}
+        </p>
+      )}
       <Link href="/">
         <Button
           className="dark:hover:bg-zinc-900 hover:bg-zinc-100 w-full"

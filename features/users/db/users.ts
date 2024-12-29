@@ -1,34 +1,49 @@
 "server-only";
 
+import bcrypt from "bcrypt";
 import { eq, or } from "drizzle-orm";
 
 import { db } from "@/db";
-import { usersTable } from "@/db/schema/users";
 
+import { usersTable } from "@/db/schema/users";
 import {
   DbUserCreate,
   LoginUserPayload,
   User,
   UserCreatePayload,
 } from "@/features/users/types/users";
-import { supabase } from "@/lib/supabase";
-import { token } from "@/features/users/utils/token";
 
-import bcrypt from "bcrypt";
+import { supabase } from "@/lib/supabase";
+
+import { token } from "@/features/users/utils/token";
 
 const createUser = async (payload: UserCreatePayload) => {
   // #region check if user exists
-  const exists = await db
+  const emailExists = await db
     .select()
     .from(usersTable)
     .where(
       or(eq(usersTable.email, payload.email), eq(usersTable.name, payload.name))
     );
 
-  if (exists.length != 0) {
+  const nameExists = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.name, payload.name));
+
+  if (emailExists.length != 0 || nameExists.length != 0) {
     return {
       data: null,
-      error: "User already exists",
+      error: [
+        emailExists.length != 0 && {
+          where: "email",
+          message: "User with this email already exists",
+        },
+        nameExists.length != 0 && {
+          where: "name",
+          message: "User with this name already exists",
+        },
+      ],
     };
   }
   // #endregion
@@ -42,7 +57,12 @@ const createUser = async (payload: UserCreatePayload) => {
   if (bucket.error && bucket.error.message != "The resource already exists") {
     return {
       data: null,
-      error: "Failed to create a storage bucket, try again later",
+      error: [
+        {
+          where: "root",
+          message: "Storage allocation has failed, try again later",
+        },
+      ],
     };
   }
   // #endregion
@@ -92,7 +112,12 @@ const loginUser = async (payload: LoginUserPayload) => {
   if (user.length == 0) {
     return {
       data: null,
-      error: "User not found",
+      error: [
+        {
+          where: "email",
+          message: "User with this email doesn't exist",
+        },
+      ],
     };
   }
 

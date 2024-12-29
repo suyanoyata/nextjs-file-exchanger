@@ -9,20 +9,33 @@ export type CurrentUserQuery = {
   userId: number;
 };
 
-export const UserCreatePayloadSchema = z.object({
-  name: z.string(),
-  email: z.string().email({
-    message: "Incorrect email format",
-  }),
-  password: z
-    .string()
-    .min(8, {
-      message: "Password must be at least 8 characters long",
-    })
-    .max(255, {
-      message: "Your password is too long",
+export const UserCreatePayloadSchema = z
+  .object({
+    name: z.string(),
+    email: z.string().email({
+      message: "Incorrect email format",
     }),
-});
+    password: z
+      .string()
+      .min(8, {
+        message: "Password must be at least 8 characters long",
+      })
+      .max(255, {
+        message: "Your password is too long",
+      }),
+    confirmPassword: z
+      .string()
+      .min(8, {
+        message: "Password must be at least 8 characters long",
+      })
+      .max(255, {
+        message: "Your password is too long",
+      }),
+  })
+  .refine((data) => data.password == data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 export const LoginUserPayloadSchema = z.object({
   email: z.string().email({
