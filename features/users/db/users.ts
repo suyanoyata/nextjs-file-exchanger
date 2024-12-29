@@ -16,6 +16,7 @@ import {
 import { supabase } from "@/lib/supabase";
 
 import { token } from "@/features/users/utils/token";
+import { z } from "zod";
 
 const createUser = async (payload: UserCreatePayload) => {
   // #region check if user exists
@@ -169,8 +170,10 @@ const getCurrentUser = async () => {
     .where(eq(usersTable.name, data.name))
     .execute();
 
+  const { password, ...user } = result[0];
+
   return {
-    data: result[0],
+    data: user,
     error: null,
   };
 };

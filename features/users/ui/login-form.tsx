@@ -66,6 +66,7 @@ export const LoginForm = () => {
         label="Email"
       />
       <FormField
+        type="password"
         fieldName="password"
         register={register}
         errors={errors}
