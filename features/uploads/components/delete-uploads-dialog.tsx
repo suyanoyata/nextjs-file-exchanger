@@ -17,10 +17,13 @@ import {
 import { Button } from "@/components/ui/button";
 
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useUploadsState } from "@/hooks/use-uploads-state";
 
 export const DeleteUploadsDialog = () => {
   const [open, setOpen] = useState(false);
   const client = useQueryClient();
+
+  const { isUploadsActionsDisabled } = useUploadsState();
 
   const { mutate: deleteUploads } = useMutation({
     mutationKey: ["delete-uploads"],
@@ -33,7 +36,7 @@ export const DeleteUploadsDialog = () => {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
+      <AlertDialogTrigger disabled={isUploadsActionsDisabled} asChild>
         <Button variant="destructive" size="sm">
           <Trash2 />
           Delete everything

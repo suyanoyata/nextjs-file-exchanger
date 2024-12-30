@@ -132,6 +132,38 @@ const getUploadByName = async (name: string) => {
   return url;
 };
 
+const getUploadData = async (name: string) => {
+  const { data, error } = await token.api.readToken();
+
+  if (error || !data) {
+    return null;
+  }
+
+  const user = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.name, data.name));
+  const items = await db
+    .select()
+    .from(uploadTable)
+    .where(eq(uploadTable.generatedFileName, name));
+
+  const fileData = await storage.api.getStorageItemByFileName(
+    user[0].name,
+    items[0].generatedFileName
+  );
+
+  if (items.length == 0 || fileData.error) {
+    return null;
+  }
+
+  return {
+    ...fileData.data[0],
+    ...items[0],
+    name: fileData.data[0].name ?? items[0].generatedFileName,
+  };
+};
+
 const clearUserUploads = async () => {
   const { data, error } = await token.api.readToken();
 
@@ -259,8 +291,10 @@ const isFileOwner = async (fileName: string): Promise<boolean> => {
 
 const changeUploadExpirationTime = async (
   uploadName: string,
-  expirationMinutes: number
+  expirationMinutes: number,
+  fromCurrentTime: boolean
 ) => {
+  // #region check if user is owner of file
   if ((await isFileOwner(uploadName)) == false) {
     return {
       data: null,
@@ -269,15 +303,13 @@ const changeUploadExpirationTime = async (
       },
     };
   }
+  // #endregion
 
-  await getUploadByName(uploadName).catch(() => {
-    return {
-      data: null,
-      error: {
-        message: "This upload does not exist",
-      },
-    };
-  });
+  const upload = await getUploadData(uploadName);
+
+  if (upload == null) {
+    return upload;
+  }
 
   if (expirationMinutes <= 0) {
     await db
@@ -297,12 +329,17 @@ const changeUploadExpirationTime = async (
       });
 
     return {
-      data: "Expiration time has been removed",
+      data: await getUploadData(uploadName),
       error: null,
     };
   }
 
-  const expiresAt = new Date(Date.now() + expirationMinutes * 60000);
+  const startTime =
+    fromCurrentTime || upload?.expiresAt == null
+      ? Date.now()
+      : new Date(upload.created_at).getTime();
+
+  const expiresAt = new Date(startTime + expirationMinutes * 60000);
 
   await db
     .update(uploadTable)
@@ -317,10 +354,7 @@ const changeUploadExpirationTime = async (
       };
     });
 
-  return {
-    data: "Expiration time has been updated",
-    error: null,
-  };
+  return getUploadData(uploadName);
 };
 
 export const uploads = {
@@ -328,6 +362,7 @@ export const uploads = {
     createUpload,
     clearUserUploads,
     getUploadByName,
+    getUploadData,
     getUserUploads,
     deleteUserUpload,
     getUploadBucketName,

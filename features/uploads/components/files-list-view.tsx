@@ -1,6 +1,5 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -18,6 +17,7 @@ import { ExpirableIndicator } from "@/features/uploads/components/expirable-indi
 import { clientUploads } from "@/features/uploads/api/uploads";
 
 import { UploadItem } from "@/features/uploads/types/uploads";
+import { useUploadsState } from "@/hooks/use-uploads-state";
 
 const Icon = ({ upload }: { upload: UploadItem }) => {
   if (upload.metadata?.mimetype.startsWith("image/")) {
@@ -37,10 +37,10 @@ const Icon = ({ upload }: { upload: UploadItem }) => {
 
 export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
   const { data } = clientUploads.api.getUploads(uploads);
-  const queryClient = useQueryClient();
 
-  const { mutate: deleteUpload, isPending } =
-    clientUploads.api.deleteUpload(queryClient);
+  const { isUploadsActionsDisabled } = useUploadsState();
+
+  const { mutate: deleteUpload } = clientUploads.api.deleteUpload();
 
   return (
     <div className="space-y-2 w-full">
@@ -67,9 +67,9 @@ export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
           </Link>
           <div className="flex flex-row items-center gap-1.5 mr-2">
             <ChangeFilePropertiesAlert withText={false} file={upload} />
-            <DownloadItemButton disabled={isPending} upload={upload} />
+            <DownloadItemButton upload={upload} />
             <Button
-              disabled={isPending}
+              disabled={isUploadsActionsDisabled}
               onClick={() =>
                 deleteUpload(upload.name ?? upload.generatedFileName)
               }

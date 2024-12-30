@@ -1,5 +1,6 @@
 import { Settings } from "lucide-react";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 
 import {
   AlertDialog,
@@ -22,7 +23,10 @@ import { Switch } from "@/components/ui/switch";
 
 import { cn } from "@/lib/utils";
 
-import { UploadItem } from "@/features/uploads/types/uploads";
+import { account } from "@/features/users/api/account";
+import { UploadItem, UploadProperties } from "@/features/uploads/types/uploads";
+import { clientUploads } from "@/features/uploads/api/uploads";
+import { useUploadsState } from "@/hooks/use-uploads-state";
 
 const timesOption = [
   {
@@ -46,15 +50,10 @@ const timesOption = [
     value: 120,
   },
   {
-    label: "Dont delete",
-    value: null,
+    label: "Don't delete",
+    value: -1,
   },
 ];
-
-type UploadProperties = {
-  expireAfterMinutes: number | null;
-  newExpireFromCurrentTime: boolean;
-};
 
 const ExpirationTimeDropdown = ({
   file,
@@ -65,10 +64,24 @@ const ExpirationTimeDropdown = ({
   properties: UploadProperties;
   setProperties: (properties: UploadProperties) => void;
 }) => {
+  const DropdownTime = () => {
+    if (!properties.expireAfterMinutes) return null;
+
+    if (properties.expireAfterMinutes <= 0) {
+      return "Don't delete";
+    }
+
+    if (properties.expireAfterMinutes >= 60) {
+      return `${properties.expireAfterMinutes / 60} hours`;
+    }
+
+    return `${properties.expireAfterMinutes} minutes`;
+  };
+
   return (
     <>
-      <DropdownMenuTrigger disabled className="text-zinc-500">
-        {properties.expireAfterMinutes} minutes
+      <DropdownMenuTrigger className="text-zinc-500">
+        <DropdownTime />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {timesOption.map((item) => {
@@ -77,7 +90,7 @@ const ExpirationTimeDropdown = ({
           return (
             <DropdownMenuItem
               className={cn(
-                item.value == null && "text-red-400 focus:text-red-400"
+                item.value <= 0 && "text-red-400 focus:text-red-400"
               )}
               onClick={() =>
                 setProperties({
@@ -103,15 +116,29 @@ export const ChangeFilePropertiesAlert = ({
   file: UploadItem;
   withText?: boolean;
 }) => {
+  const { data } = account.api.getCurrentUser();
+
+  const [open, setOpen] = useState(false);
+
   const [properties, setProperties] = useState<UploadProperties>({
-    expireAfterMinutes: 5,
+    expireAfterMinutes: data?.expirationMinutes ?? 5,
     newExpireFromCurrentTime: true,
   });
 
+  const { isUploadsActionsDisabled } = useUploadsState();
+
+  const { mutate, isSuccess } = clientUploads.api.changeExpirationTime();
+
+  useEffect(() => {
+    if (isSuccess) {
+      setOpen(false);
+    }
+  }, [isSuccess]);
+
   return (
     <DropdownMenu>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
+      <AlertDialog open={open} onOpenChange={setOpen}>
+        <AlertDialogTrigger disabled={isUploadsActionsDisabled} asChild>
           <Button>
             <Settings size={14} />
             {withText && "Change properties"}
@@ -134,8 +161,7 @@ export const ChangeFilePropertiesAlert = ({
               Change expire time from current time
             </Label>
             <Switch
-              // TODO: re-enable this switch
-              disabled={file.expiresAt == null || true}
+              disabled={file.expiresAt == null}
               id="expire-time-switch"
               checked={properties.newExpireFromCurrentTime}
               onCheckedChange={(checked) =>
@@ -150,7 +176,7 @@ export const ChangeFilePropertiesAlert = ({
             <AlertDialogCancel asChild>
               <Button variant="outline">Cancel</Button>
             </AlertDialogCancel>
-            <Button disabled>Save</Button>
+            <Button onClick={() => mutate({ file, properties })}>Save</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

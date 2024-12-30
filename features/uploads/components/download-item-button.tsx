@@ -1,22 +1,35 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { UploadItem } from "@/features/uploads/types/uploads";
-import { Download } from "lucide-react";
 import Link from "next/link";
+import { Download } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+
+import { useUploadsState } from "@/hooks/use-uploads-state";
+
+import { UploadItem } from "@/features/uploads/types/uploads";
 
 export const DownloadItemButton = ({
-  disabled,
   upload,
   withText = false,
 }: {
-  disabled?: boolean;
   upload: UploadItem;
   withText?: boolean;
 }) => {
+  const { isUploadsActionsDisabled } = useUploadsState();
+
+  if (isUploadsActionsDisabled) {
+    return (
+      <Button disabled={isUploadsActionsDisabled}>
+        <Download />
+        {withText && "Download"}
+      </Button>
+    );
+  }
+
   return (
     <Link prefetch={false} href={`/${upload.name}?d=1`}>
-      <Button disabled={disabled}>
+      <Button disabled={isUploadsActionsDisabled}>
         <Download />
         {withText && "Download"}
       </Button>

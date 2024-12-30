@@ -1,5 +1,4 @@
 import { clientUploads } from "@/features/uploads/api/uploads";
-import { useQueryClient } from "@tanstack/react-query";
 
 import Link from "next/link";
 import { Download, Trash2 } from "lucide-react";
@@ -15,6 +14,8 @@ import { ChangeFilePropertiesAlert } from "@/features/uploads/components/change-
 
 import { UploadItem } from "@/features/uploads/types/uploads";
 
+import { useUploadsState } from "@/hooks/use-uploads-state";
+
 export const FileContextMenu = ({
   children,
   file,
@@ -22,10 +23,9 @@ export const FileContextMenu = ({
   children: React.ReactNode;
   file: UploadItem;
 }) => {
-  const queryClient = useQueryClient();
+  const { isUploadsActionsDisabled } = useUploadsState();
 
-  const { mutate: deleteUpload, isPending } =
-    clientUploads.api.deleteUpload(queryClient);
+  const { mutate: deleteUpload } = clientUploads.api.deleteUpload();
 
   return (
     <ContextMenu>
@@ -45,7 +45,7 @@ export const FileContextMenu = ({
         <ContextMenuSeparator />
         <ContextMenuItem
           onClick={() => deleteUpload(file.name)}
-          disabled={isPending}
+          disabled={isUploadsActionsDisabled}
           className="text-sm gap-1.5 text-red-400 focus:text-red-400"
         >
           <Trash2 size={14} />

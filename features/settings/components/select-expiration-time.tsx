@@ -8,13 +8,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import { updateExpirationTime } from "@/features/settings/db/users";
 
-import { User } from "@/features/users/types/users";
+import { account } from "@/features/users/api/account";
 
 const timesOption = [
   {
@@ -79,10 +78,7 @@ const SelectExpirationTimeDropdown = () => {
 };
 
 export const SelectExpirationTime = () => {
-  const { data: userData } = useQuery<User>({
-    queryKey: ["current-user"],
-    queryFn: async () => (await api.get("/api/user")).data.data,
-  });
+  const { data: userData } = account.api.getCurrentUser();
 
   const formattedTime =
     userData && userData?.expirationMinutes >= 60
@@ -93,14 +89,14 @@ export const SelectExpirationTime = () => {
     if (userData?.expirationMinutes == -1) {
       return (
         <h2 className="text-zinc-600 dark:text-zinc-400 text-xs font-medium">
-          Files uploaded via website and API will be deleted after the selected
+          Files uploaded via website and API will be deleted after selected
           time. Your files will not be deleted after upload.
         </h2>
       );
     } else {
       return (
         <h2 className="text-zinc-600 dark:text-zinc-400 text-xs font-medium">
-          Files uploaded via website and API will be deleted after the selected
+          Files uploaded via website and API will be deleted after selected
           time. Your files will be deleted after{" "}
           <span className="text-zinc-900 dark:text-zinc-200">
             {formattedTime}

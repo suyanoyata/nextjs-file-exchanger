@@ -1,6 +1,5 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -10,8 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 import { UploadItem } from "@/features/uploads/types/uploads";
+
 import { ExpirableIndicator } from "@/features/uploads/components/expirable-indicator";
 import { DownloadItemButton } from "@/features/uploads/components/download-item-button";
+
+import { useUploadsState } from "@/hooks/use-uploads-state";
 
 import { clientUploads } from "@/features/uploads/api/uploads";
 
@@ -32,11 +34,10 @@ const Icon = ({ upload }: { upload: UploadItem }) => {
 };
 
 export const FilesGridView = ({ uploads }: { uploads: UploadItem[] }) => {
-  const queryClient = useQueryClient();
+  const { isUploadsActionsDisabled } = useUploadsState();
 
   const { data } = clientUploads.api.getUploads(uploads);
-  const { mutate: deleteUpload, isPending } =
-    clientUploads.api.deleteUpload(queryClient);
+  const { mutate: deleteUpload } = clientUploads.api.deleteUpload();
 
   return (
     <div className="w-full grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -66,13 +67,9 @@ export const FilesGridView = ({ uploads }: { uploads: UploadItem[] }) => {
           </CardContent>
           <CardFooter>
             <div className="flex flex-row items-center gap-1.5">
-              <DownloadItemButton
-                disabled={isPending}
-                withText
-                upload={upload}
-              />
+              <DownloadItemButton withText upload={upload} />
               <Button
-                disabled={isPending}
+                disabled={isUploadsActionsDisabled}
                 onClick={() =>
                   deleteUpload(upload.name ?? upload.generatedFileName)
                 }
