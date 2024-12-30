@@ -55,10 +55,22 @@ const changeExpirationTime = () => {
         `/api/upload/change-expire/${file.name}?minutes=${properties.expireAfterMinutes}&fromCurrent=${properties.newExpireFromCurrentTime}`
       ),
     onMutate: () => setIsUploadsActionsDisabled(true),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      const newFile = response.data;
+
+      queryClient.setQueryData(["uploads"], (prev: UploadItem[]) => {
+        return prev.map((upload) => {
+          if (upload.name === newFile.name) {
+            return newFile;
+          }
+          return upload;
+        });
+      });
+
       queryClient.refetchQueries({
         queryKey: ["uploads"],
       });
+
       setIsUploadsActionsDisabled(false);
     },
   });
