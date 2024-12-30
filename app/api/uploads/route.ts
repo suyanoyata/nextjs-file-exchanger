@@ -1,5 +1,3 @@
-// TODO: implement getting user cookie
-
 import { uploads } from "@/features/uploads/db/uploads";
 import { NextResponse } from "next/server";
 

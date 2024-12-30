@@ -7,9 +7,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { updateExpirationTime } from "@/features/settings/db/users";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { updateExpirationTime } from "@/features/settings/db/users";
+
+import { User } from "@/features/users/types/users";
 
 const timesOption = [
   {
@@ -38,7 +43,7 @@ const timesOption = [
   },
 ];
 
-export const SelectExpirationTime = () => {
+const SelectExpirationTimeDropdown = () => {
   const client = useQueryClient();
   const { mutateAsync, isPending } = useMutation({
     mutationKey: ["changeExpirationTime"],
@@ -54,7 +59,7 @@ export const SelectExpirationTime = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger disabled={isPending} asChild>
-        <Button>Change expiration time</Button>
+        <Button variant="outline">Change time</Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {timesOption.map((item) => (
@@ -70,5 +75,49 @@ export const SelectExpirationTime = () => {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+};
+
+export const SelectExpirationTime = () => {
+  const { data: userData } = useQuery<User>({
+    queryKey: ["current-user"],
+    queryFn: async () => (await api.get("/api/user")).data.data,
+  });
+
+  const formattedTime =
+    userData && userData?.expirationMinutes >= 60
+      ? `${Math.round(userData?.expirationMinutes / 60)} hours`
+      : `${userData?.expirationMinutes} minutes`;
+
+  const Description = () => {
+    if (userData?.expirationMinutes == -1) {
+      return (
+        <h2 className="text-zinc-600 dark:text-zinc-400 text-xs font-medium">
+          Files uploaded via website and API will be deleted after the selected
+          time. Your files will not be deleted after upload.
+        </h2>
+      );
+    } else {
+      return (
+        <h2 className="text-zinc-600 dark:text-zinc-400 text-xs font-medium">
+          Files uploaded via website and API will be deleted after the selected
+          time. Your files will be deleted after{" "}
+          <span className="text-zinc-900 dark:text-zinc-200">
+            {formattedTime}
+          </span>
+          .
+        </h2>
+      );
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between flex-1">
+      <div>
+        <h1 className="text-lg font-bold">Default deletion time</h1>
+        <Description />
+      </div>
+      <SelectExpirationTimeDropdown />
+    </div>
   );
 };

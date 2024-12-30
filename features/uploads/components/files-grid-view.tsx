@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 
 import { UploadItem } from "@/features/uploads/types/uploads";
-import { ExpirableItem } from "@/features/uploads/components/expirable-item";
+import { ExpirableIndicator } from "@/features/uploads/components/expirable-indicator";
 import { DownloadItemButton } from "@/features/uploads/components/download-item-button";
 
 import { clientUploads } from "@/features/uploads/api/uploads";
@@ -56,7 +56,7 @@ export const FilesGridView = ({ uploads }: { uploads: UploadItem[] }) => {
                   <p className="text-sm font-medium text-ellipsis overflow-hidden">
                     {upload.originalFileName}
                   </p>
-                  <ExpirableItem date={upload.expiresAt} />
+                  <ExpirableIndicator date={upload.expiresAt} />
                 </div>
                 <p className="text-xs text-zinc-500 font-medium">
                   {upload.name}

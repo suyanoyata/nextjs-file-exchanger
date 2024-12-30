@@ -4,11 +4,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 
-import { Clock, File, Trash2 } from "lucide-react";
+import { File, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
+import { ChangeFilePropertiesAlert } from "@/features/uploads/components/change-file-properties";
 import { DownloadItemButton } from "@/features/uploads/components/download-item-button";
-import { ExpirableItem } from "@/features/uploads/components/expirable-item";
+import { ExpirableIndicator } from "@/features/uploads/components/expirable-indicator";
+
+// TODO: re-enable this component
+// import { FileContextMenu } from "@/features/uploads/components/file-context-menu";
 
 import { clientUploads } from "@/features/uploads/api/uploads";
 
@@ -31,8 +36,8 @@ const Icon = ({ upload }: { upload: UploadItem }) => {
 };
 
 export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
-  const queryClient = useQueryClient();
   const { data } = clientUploads.api.getUploads(uploads);
+  const queryClient = useQueryClient();
 
   const { mutate: deleteUpload, isPending } =
     clientUploads.api.deleteUpload(queryClient);
@@ -40,6 +45,7 @@ export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
   return (
     <div className="space-y-2 w-full">
       {data.map((upload) => (
+        // <FileContextMenu key={upload.id} file={upload}>
         <div
           key={upload.id}
           className="flex flex-row items-center hover:bg-zinc-400/10 dark:hover:bg-zinc-800/20 rounded-lg duration-200 relative"
@@ -51,15 +57,16 @@ export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
             className="p-2 flex-1 flex gap-2"
           >
             <Icon upload={upload} />
-            <div>
+            <div className="inline-flex justify-center flex-col">
               <div className="inline-flex gap-1.5 items-center">
                 <p className="text-sm font-medium">{upload.originalFileName}</p>
-                <ExpirableItem date={upload.expiresAt} />
+                <ExpirableIndicator date={upload.expiresAt} />
               </div>
               <p className="text-xs text-zinc-500 font-medium">{upload.name}</p>
             </div>
           </Link>
           <div className="flex flex-row items-center gap-1.5 mr-2">
+            <ChangeFilePropertiesAlert withText={false} file={upload} />
             <DownloadItemButton disabled={isPending} upload={upload} />
             <Button
               disabled={isPending}
@@ -72,6 +79,7 @@ export const FilesListView = ({ uploads }: { uploads: UploadItem[] }) => {
             </Button>
           </div>
         </div>
+        // </FileContextMenu>
       ))}
     </div>
   );

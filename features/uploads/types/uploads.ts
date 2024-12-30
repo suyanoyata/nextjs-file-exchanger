@@ -5,6 +5,6 @@ export type SelectUploadItem = typeof uploadTable.$inferSelect;
 
 // generatedFileName and name are same
 export type UploadItem = SelectUploadItem & {
-  name?: string;
+  name: string;
   metadata?: Record<string, any>;
 };

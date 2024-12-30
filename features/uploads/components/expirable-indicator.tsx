@@ -7,7 +7,7 @@ import moment from "moment";
 
 import { Clock } from "lucide-react";
 
-export const ExpirableItem = ({ date }: { date: Date | null }) => {
+export const ExpirableIndicator = ({ date }: { date: Date | null }) => {
   if (date == null) return null;
 
   return (
@@ -15,7 +15,7 @@ export const ExpirableItem = ({ date }: { date: Date | null }) => {
       <TooltipTrigger>
         <Clock className="text-red-400" size={12} />
       </TooltipTrigger>
-      <TooltipContent>Expires {moment(date).fromNow()}</TooltipContent>
+      <TooltipContent>Will be deleted {moment(date).fromNow()}</TooltipContent>
     </Tooltip>
   );
 };

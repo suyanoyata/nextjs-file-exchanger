@@ -100,6 +100,7 @@ const getUserUploads = async (): Promise<UserUploadsResponse> => {
 
       return {
         ...fileData.data?.[0],
+        name: fileData.data?.[0].name ?? item.generatedFileName,
         ...item,
       };
     })
@@ -237,6 +238,91 @@ const removeExpiredUploads = async () => {
   };
 };
 
+const isFileOwner = async (fileName: string): Promise<boolean> => {
+  const { data, error } = await token.api.readToken();
+
+  if (error || !data) {
+    return false;
+  }
+
+  const exists = await db
+    .select()
+    .from(uploadTable)
+    .where(eq(uploadTable.generatedFileName, fileName));
+
+  if (exists.length == 0) {
+    return false;
+  }
+
+  return exists[0].userId == data.userId;
+};
+
+const changeUploadExpirationTime = async (
+  uploadName: string,
+  expirationMinutes: number
+) => {
+  if ((await isFileOwner(uploadName)) == false) {
+    return {
+      data: null,
+      error: {
+        message: "You are not the owner of this file",
+      },
+    };
+  }
+
+  await getUploadByName(uploadName).catch(() => {
+    return {
+      data: null,
+      error: {
+        message: "This upload does not exist",
+      },
+    };
+  });
+
+  if (expirationMinutes <= 0) {
+    await db
+      .update(uploadTable)
+      .set({
+        expiresAt: null,
+      })
+      .where(eq(uploadTable.generatedFileName, uploadName))
+      .execute()
+      .catch(() => {
+        return {
+          data: null,
+          error: {
+            message: "Couldn't update expiration time",
+          },
+        };
+      });
+
+    return {
+      data: "Expiration time has been removed",
+      error: null,
+    };
+  }
+
+  const expiresAt = new Date(Date.now() + expirationMinutes * 60000);
+
+  await db
+    .update(uploadTable)
+    .set({ expiresAt })
+    .where(eq(uploadTable.generatedFileName, uploadName))
+    .catch(() => {
+      return {
+        data: null,
+        error: {
+          message: "Couldn't update expiration time",
+        },
+      };
+    });
+
+  return {
+    data: "Expiration time has been updated",
+    error: null,
+  };
+};
+
 export const uploads = {
   api: {
     createUpload,
@@ -247,5 +333,6 @@ export const uploads = {
     getUploadBucketName,
     getExpiredUploads,
     removeExpiredUploads,
+    changeUploadExpirationTime,
   },
 };
