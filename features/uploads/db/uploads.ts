@@ -328,10 +328,7 @@ const changeUploadExpirationTime = async (
         };
       });
 
-    return {
-      data: await getUploadData(uploadName),
-      error: null,
-    };
+    return await getUploadData(uploadName);
   }
 
   const startTime =

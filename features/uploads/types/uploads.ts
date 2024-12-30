@@ -9,6 +9,6 @@ export type UploadItem = SelectUploadItem & {
 };
 
 export type UploadProperties = {
-  expireAfterMinutes: number | null;
+  expireAfterMinutes: number;
   newExpireFromCurrentTime: boolean;
 };

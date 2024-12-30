@@ -141,7 +141,7 @@ export const ChangeFilePropertiesAlert = ({
         <AlertDialogTrigger disabled={isUploadsActionsDisabled} asChild>
           <Button>
             <Settings size={14} />
-            {withText && "Change properties"}
+            {withText && "Properties"}
           </Button>
         </AlertDialogTrigger>
         <AlertDialogContent>
@@ -161,7 +161,9 @@ export const ChangeFilePropertiesAlert = ({
               Change expire time from current time
             </Label>
             <Switch
-              disabled={file.expiresAt == null}
+              disabled={
+                file.expiresAt == null || properties.expireAfterMinutes <= 0
+              }
               id="expire-time-switch"
               checked={properties.newExpireFromCurrentTime}
               onCheckedChange={(checked) =>

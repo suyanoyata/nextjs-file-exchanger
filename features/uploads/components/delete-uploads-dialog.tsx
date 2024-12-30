@@ -36,7 +36,11 @@ export const DeleteUploadsDialog = () => {
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger disabled={isUploadsActionsDisabled} asChild>
+      <AlertDialogTrigger
+        className="ml-2"
+        disabled={isUploadsActionsDisabled}
+        asChild
+      >
         <Button variant="destructive" size="sm">
           <Trash2 />
           Delete everything
