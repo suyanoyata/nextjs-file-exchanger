@@ -89,10 +89,11 @@ export const UploadAlertDialog = ({
     }
   }, [open]);
 
-  const formattedTime =
-    data && data?.expirationMinutes >= 60
+  const formattedTime = data
+    ? data?.expirationMinutes >= 60
       ? `approximately in ${Math.round(data?.expirationMinutes / 60)} hours`
-      : `in ${data?.expirationMinutes} minutes`;
+      : `in ${data?.expirationMinutes} minutes`
+    : "5 minutes";
 
   const queryClient = useQueryClient();
 
