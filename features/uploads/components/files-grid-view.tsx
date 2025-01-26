@@ -71,6 +71,7 @@ export const FilesGridView = ({ uploads }: { uploads: UploadItem[] }) => {
         >
           <CardContent className="p-4 flex-1">
             <Link
+              target="_blank"
               className="flex gap-2 overflow-hidden cursor-pointer flex-col"
               href={`/${upload.name}`}
             >
@@ -82,9 +83,7 @@ export const FilesGridView = ({ uploads }: { uploads: UploadItem[] }) => {
                   </p>
                   <ExpirableIndicator date={upload.expiresAt} />
                 </div>
-                <p className="text-xs text-zinc-500 font-medium">
-                  {upload.name}
-                </p>
+                <p className="text-xs text-zinc-500 font-medium">{upload.name}</p>
               </div>
             </Link>
           </CardContent>
@@ -94,9 +93,7 @@ export const FilesGridView = ({ uploads }: { uploads: UploadItem[] }) => {
               <DownloadItemButton withText={!small} upload={upload} />
               <Button
                 disabled={isUploadsActionsDisabled}
-                onClick={() =>
-                  deleteUpload(upload.name ?? upload.generatedFileName)
-                }
+                onClick={() => deleteUpload(upload.name ?? upload.generatedFileName)}
                 variant="destructive"
               >
                 <Trash2 />
