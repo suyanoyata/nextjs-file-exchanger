@@ -1,15 +1,15 @@
-import { uploads } from "@/features/uploads/db/uploads";
+import UploadService from "@/features/uploads/db/uploads";
 import { NextResponse } from "next/server";
 
 export async function DELETE() {
-  const data = await uploads.api.clearUserUploads();
+  const data = await UploadService.clearUserUploads();
   return NextResponse.json({
     data,
   });
 }
 
 export async function GET() {
-  const { data, error } = await uploads.api.getUserUploads();
+  const { data, error } = await UploadService.getUserUploads();
 
   if (error) {
     return NextResponse.json({

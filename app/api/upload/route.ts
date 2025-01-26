@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { uploads } from "@/features/uploads/db/uploads";
+import UploadService from "@/features/uploads/db/uploads";
 import { token } from "@/features/users/utils/token";
 import { users } from "@/features/users/db/users";
 
@@ -43,7 +43,7 @@ export async function POST(req: Request) {
     expirationTime = dbUser.expirationMinutes;
   }
 
-  const newFile = await uploads.api.createUpload(
+  const newFile = await UploadService.createUpload(
     {
       userId,
       originalFileName: file.name,

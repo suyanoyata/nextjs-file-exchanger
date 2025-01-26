@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { uploads } from "@/features/uploads/db/uploads";
+import UploadService from "@/features/uploads/db/uploads";
 
 export async function PATCH(
   request: NextRequest,
@@ -9,10 +9,8 @@ export async function PATCH(
   const minutes = request.nextUrl.searchParams.get("minutes");
   const fromCurrentTime = request.nextUrl.searchParams.get("fromCurrent");
 
-  const req = await uploads.api.changeUploadExpirationTime(
-    (
-      await params
-    ).fileName,
+  const req = await UploadService.changeUploadExpirationTime(
+    (await params).fileName,
     Number(minutes),
     fromCurrentTime === "true"
   );

@@ -1,4 +1,4 @@
-import { uploads } from "@/features/uploads/db/uploads";
+import UploadService from "@/features/uploads/db/uploads";
 import { token } from "@/features/users/utils/token";
 import { NextResponse } from "next/server";
 
@@ -14,7 +14,7 @@ export async function DELETE(
     return NextResponse.json(tokenPayload.error, { status: 500 });
   }
 
-  const { error } = await uploads.api.deleteUserUpload(
+  const { error } = await UploadService.deleteUserUpload(
     tokenPayload.data.name,
     fileName
   );

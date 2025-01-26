@@ -1,5 +1,5 @@
-import { storage } from "@/features/uploads/db/storage";
-import { uploads } from "@/features/uploads/db/uploads";
+import StorageService from "@/features/uploads/db/storage";
+import UploadService from "@/features/uploads/db/uploads";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -8,16 +8,13 @@ export async function GET(
 ) {
   const fileName = (await params).fileName;
 
-  const bucketName = await uploads.api.getUploadBucketName(fileName);
+  const bucketName = await UploadService.getUploadBucketName(fileName);
 
   if (bucketName.error) {
     return NextResponse.json({ ...bucketName.error }, { status: 500 });
   }
 
-  const { data, error } = await storage.api.downloadFile(
-    bucketName.data,
-    fileName
-  );
+  const { data, error } = await StorageService.downloadFile(bucketName.data, fileName);
 
   if (error) {
     return NextResponse.json({ message: error.message }, { status: 500 });
