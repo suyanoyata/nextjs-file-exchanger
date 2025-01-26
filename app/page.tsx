@@ -1,9 +1,9 @@
 import { LoginForm } from "@/features/users/ui/login-form";
-import { token } from "@/features/users/utils/token";
+import TokenService from "@/features/users/utils/token";
 import { redirect } from "next/navigation";
 
 export default async function Page() {
-  if ((await token.api.readToken()).data?.userId) {
+  if ((await TokenService.readToken()).data?.userId) {
     redirect("/uploads");
   }
   return (

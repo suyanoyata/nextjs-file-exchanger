@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { token } from "@/features/users/utils/token";
+import TokenService from "@/features/users/utils/token";
 import { users } from "@/features/users/db/users";
 import { cookies } from "next/headers";
 
@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: result.error }, { status: 500 });
   }
 
-  const authToken = await token.api.signToken(result.data);
+  const authToken = await TokenService.signToken(result.data);
 
   cookie.set("access-token", authToken);
 

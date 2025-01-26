@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import UploadService from "@/features/uploads/db/uploads";
-import { token } from "@/features/users/utils/token";
+import TokenService from "@/features/users/utils/token";
 import { users } from "@/features/users/db/users";
 
 export const config = {
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   if (!user.error && user.data) {
     userId = user.data.id;
   } else {
-    const tokenInfo = await token.api.readCustomToken(uploadToken);
+    const tokenInfo = await TokenService.readCustomToken(uploadToken);
 
     if (!tokenInfo.error && tokenInfo.data) {
       userId = tokenInfo.data.userId;

@@ -15,16 +15,14 @@ import {
 
 import { supabase } from "@/lib/supabase";
 
-import { token } from "@/features/users/utils/token";
+import TokenService from "@/features/users/utils/token";
 
 const createUser = async (payload: UserCreatePayload) => {
   // #region check if user exists
   const emailExists = await db
     .select()
     .from(usersTable)
-    .where(
-      or(eq(usersTable.email, payload.email), eq(usersTable.name, payload.name))
-    );
+    .where(or(eq(usersTable.email, payload.email), eq(usersTable.name, payload.name)));
 
   const nameExists = await db
     .select()
@@ -84,12 +82,9 @@ const createUser = async (payload: UserCreatePayload) => {
     .from(usersTable)
     .where(or(eq(usersTable.name, payload.name)));
 
-  const apiKey = await token.api.signToken(newUser[0]);
+  const apiKey = await TokenService.signToken(newUser[0]);
 
-  await db
-    .update(usersTable)
-    .set({ apiKey })
-    .where(eq(usersTable.name, newUser[0].name));
+  await db.update(usersTable).set({ apiKey }).where(eq(usersTable.name, newUser[0].name));
   // #endregion
 
   return {
@@ -145,16 +140,12 @@ const getUsers = async (): Promise<User[]> => {
 
 const getUserById = async (userId: number): Promise<User> => {
   return (
-    await db
-      .select()
-      .from(usersTable)
-      .where(eq(usersTable.id, userId))
-      .execute()
+    await db.select().from(usersTable).where(eq(usersTable.id, userId)).execute()
   )[0];
 };
 
 const getCurrentUser = async () => {
-  const { data, error } = await token.api.readToken();
+  const { data, error } = await TokenService.readToken();
 
   if (error || !data) {
     return {

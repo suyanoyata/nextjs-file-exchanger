@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { token } from "@/features/users/utils/token";
+import TokenService from "@/features/users/utils/token";
 import { api } from "@/lib/api";
 
 let timestamp = Date.now();
@@ -25,7 +25,7 @@ export default async function middleware(request: NextRequest) {
   }
 
   if (protectedRoutes.includes(`${pathname}`)) {
-    const payload = await token.api.readToken();
+    const payload = await TokenService.readToken();
 
     newUrl.pathname = "/";
 

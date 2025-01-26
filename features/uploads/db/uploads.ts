@@ -11,7 +11,7 @@ import { usersTable } from "@/db/schema/users";
 import StorageService from "@/features/uploads/db/storage";
 
 import { UploadCreatePayload, UploadItem } from "@/features/uploads/types/uploads";
-import { token } from "@/features/users/utils/token";
+import TokenService from "@/features/users/utils/token";
 import { users } from "@/features/users/db/users";
 
 type UserUploadsResponse =
@@ -59,7 +59,7 @@ class UploadService {
   };
 
   public getUserUploads = async (): Promise<UserUploadsResponse> => {
-    const { data, error } = await token.api.readToken();
+    const { data, error } = await TokenService.readToken();
 
     if (error || !data) {
       return {
@@ -109,7 +109,7 @@ class UploadService {
   };
 
   public clearUserUploads = async () => {
-    const { data, error } = await token.api.readToken();
+    const { data, error } = await TokenService.readToken();
 
     if (error || !data) {
       return {
@@ -182,7 +182,7 @@ class UploadService {
   };
 
   private getUploadData = async (name: string) => {
-    const { data, error } = await token.api.readToken();
+    const { data, error } = await TokenService.readToken();
 
     if (error || !data) {
       return null;
@@ -211,7 +211,7 @@ class UploadService {
   };
 
   private isFileOwner = async (fileName: string): Promise<boolean> => {
-    const { data, error } = await token.api.readToken();
+    const { data, error } = await TokenService.readToken();
 
     if (error || !data) {
       return false;
